@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8">
+  <title>ساخت فایل کانفیگ WireGuard</title>
+  <style>
+    body { background:#D3D3D3; font-family: Tahoma,Verdana,sans-serif; direction: rtl; text-align: center; }
+    #configForm { margin: 30px auto; display: inline-block; background: #fff; padding: 20px 30px; border-radius: 12px; box-shadow:0 0 6px #ccc; }
+    button { background: #FFEB3B; padding:10px 30px; border:none; border-radius:6px; font-weight:bold; margin-top:10px; cursor:pointer; }
+    #result { margin-top: 25px; }
+    pre { text-align: left; direction: ltr; background: #222; color: #e2e2e2; padding: 16px; border-radius: 10px;}
+    .support { margin-top: 40px; font-weight:bold; }
+    .support a { color:#2186d4; text-decoration:none; }
+  </style>
+</head>
+<body>
+  <h2>ساخت فایل کانفیگ WireGuard</h2>
+  <form id="configForm">
+    <label for="country">انتخاب کشور:</label>
+    <select id="country" name="country" required>
+      <option value="">-- کشور را انتخاب کنید --</option>
+      <option value="UAE">امارات</option>
+      <option value="Bahrain">بحرین</option>
+      <option value="Qatar">قطر</option>
+    </select>
+    <br><br>
+    <button type="submit">ساخت و دانلود کانفیگ</button>
+  </form>
+  <div id="result"></div>
+  <div class="support">
+    پشتیبانی <a href="https://t.me/vahidekhlasi" target="_blank">@vahidekhlasi</a>
+  </div>
+  <script>
+    document.getElementById('configForm').onsubmit = async function(e) {
+      e.preventDefault();
+      let country = document.getElementById('country').value;
+      if(!country){
+        alert('لطفا کشور را انتخاب کنید!');
+        return;
+      }
+      let resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = "در حال ساخت...";
+      let response = await fetch('/api/generate-config', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({country})
+      });
+      let data = await response.json();
+      if(data.success){
+        resultDiv.innerHTML = `
+          <pre>${data.config}</pre>
+          <a href="${data.download_url}" download>دانلود فایل کانفیگ</a>
+        `;
+      } else {
+        resultDiv.innerHTML = 'خطا: ' + (data.error || 'مشکلی پیش آمده است.');
+      }
+    };
+  </script>
+</body>
+</html>
